@@ -11,10 +11,17 @@ fn main() {
         .run();
 }
 
+// This should be a newtyped RangeInclusive.
 #[derive(Component)]
 struct AnimationIndices {
     first: usize,
     last: usize,
+}
+
+impl AnimationIndices {
+    fn len() -> usize {
+        self.last - self.first + 1
+    }
 }
 
 #[derive(Component, Deref, DerefMut)]
@@ -31,11 +38,9 @@ fn animate_sprite(
     for (indices, mut timer, mut sprite) in &mut query {
         timer.tick(time.delta());
         if timer.just_finished() {
-            sprite.index = if sprite.index == indices.last {
-                indices.first
-            } else {
-                sprite.index + 1
-            };
+            sprite.index -= indices.first - 1;
+            sprite.index %= indices.len();
+            sprite.index += indices.first;
         }
     }
 }
