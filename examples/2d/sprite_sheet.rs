@@ -18,12 +18,6 @@ struct AnimationIndices {
     last: usize,
 }
 
-impl AnimationIndices {
-    fn len() -> usize {
-        self.last - self.first + 1
-    }
-}
-
 #[derive(Component, Deref, DerefMut)]
 struct AnimationTimer(Timer);
 
@@ -38,8 +32,9 @@ fn animate_sprite(
     for (indices, mut timer, mut sprite) in &mut query {
         timer.tick(time.delta());
         if timer.just_finished() {
+            // This ought to be a single "modular increment" operation.
             sprite.index -= indices.first - 1;
-            sprite.index %= indices.len();
+            sprite.index %= indices.last - indices.first + 1;
             sprite.index += indices.first;
         }
     }
